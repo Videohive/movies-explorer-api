@@ -20,9 +20,8 @@ mongoose.connect(DB_CONN, {
   .then(() => console.log('Успешное подключение к MongoDB'))
   .catch((err) => console.error('Ошибка подключения:', err));
 
-app.use(helmet());
-app.use(rateLimiter);
 app.use(express.json());
+
 app.use(express.urlencoded({ extended: true }));
 
 const corsOptions = {
@@ -31,10 +30,13 @@ const corsOptions = {
   preflightContinue: false,
   optionsSuccessStatus: 204,
 };
+
+app.use(rateLimiter);
 app.use(cors(corsOptions));
 
 app.use(requestLogger);
 
+app.use(helmet());
 app.use(routes);
 
 app.use(errorLogger);
