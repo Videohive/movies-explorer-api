@@ -3,7 +3,7 @@ const WRONG_DATA = 'Переданы некорректные данные';
 const MOVIE_ACCESS_ERROR = 'Нет прав для удаления этого фильма';
 const MOVIE_NOT_FOUND = 'Фильм с данным id не найден';
 const USER_NOT_FOUND = 'Пользователь не найден';
-const USER_WRONG_ID = 'Пользователь с данным id не найден';
+const USER_WRONG_ID = 'Введен невалидный id пользователя';
 const EMAIL_ALREADY_EXISTS = 'Пользователь с указанным email уже зарегистрирован';
 const AUTHORIZATION_REQUIRED = 'При авторизации произошла ошибка';
 const URL_NOT_FOUND = 'Данная страница не существует';
@@ -29,6 +29,7 @@ function errorHandler(err, req, res, next) {
   } else if (err instanceof ForbiddenError) {
     res.status(err.status).send({ message: err.message });
   } else {
+    res.status(500).send({ message: SERVER_ERROR });
     next(err);
   }
 }

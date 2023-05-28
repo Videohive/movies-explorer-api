@@ -9,6 +9,7 @@ const routes = require('./routes/index');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { errorHandler } = require('./utils/customErrors');
+const { DB_CONNECT, DB_ERROR, LINK_SERVER } = require('./utils/constants');
 
 const { PORT, BASE_PATH, DB_CONN } = require('./config');
 
@@ -17,8 +18,8 @@ const app = express();
 mongoose.connect(DB_CONN, {
   useNewUrlParser: true,
 })
-  .then(() => console.log('Успешное подключение к MongoDB'))
-  .catch((err) => console.error('Ошибка подключения:', err));
+  .then(() => console.log(DB_CONNECT))
+  .catch((err) => console.error(DB_ERROR, err));
 
 app.use(express.json());
 
@@ -31,20 +32,18 @@ const corsOptions = {
   optionsSuccessStatus: 204,
 };
 
-app.use(rateLimiter);
 app.use(cors(corsOptions));
 
 app.use(requestLogger);
+app.use(rateLimiter);
 
 app.use(helmet());
 app.use(routes);
 
 app.use(errorLogger);
-
 app.use(errors());
-
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log('Ссылка на сервер:', `${BASE_PATH}:${PORT}`);
+  console.log(LINK_SERVER, `${BASE_PATH}:${PORT}`);
 });
