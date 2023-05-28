@@ -35,16 +35,16 @@ module.exports.getCurrentUser = (req, res, next) => {
 
 module.exports.createUser = (req, res, next) => {
   const {
-    name, about, avatar, email, password,
+    name, email, password,
   } = req.body;
   bcrypt.hash(password, 10)
     .then((hash) => User.create({
-      name, about, avatar, email, password: hash,
+      name, email, password: hash,
     }))
     .then(() => {
       res.send({
         data: {
-          name, about, avatar, email,
+          name, email,
         },
       });
       return null;
