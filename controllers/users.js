@@ -1,20 +1,28 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
-const { NotFoundError, BadRequestError, ConflictError } = require('../utils/customErrors');
+const {
+  USER_NOT_FOUND,
+  USER_WRONG_ID,
+  WRONG_DATA,
+  EMAIL_ALREADY_EXISTS,
+  NotFoundError,
+  BadRequestError,
+  ConflictError,
+} = require('../utils/customErrors');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 const findUser = (query) => User.findById(query)
   .then((user) => {
     if (!user) {
-      throw new NotFoundError('Пользователь не найден');
+      throw new NotFoundError(USER_NOT_FOUND);
     }
     return user;
   })
   .catch((err) => {
     if (err.name === 'CastError') {
-      throw new BadRequestError('Некорректный id пользователя');
+      throw new BadRequestError(USER_WRONG_ID);
     }
     throw err;
   });
@@ -43,11 +51,11 @@ module.exports.createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные'));
+        next(new BadRequestError(WRONG_DATA));
         return;
       }
       if (err.code === 11000) {
-        next(new ConflictError('Пользователь уже зарегистрирован'));
+        next(new ConflictError(EMAIL_ALREADY_EXISTS));
         return;
       }
       next(err);
@@ -64,16 +72,20 @@ const updateUser = (req, res, next, updateData) => {
       if (user) {
         res.send(user);
       } else {
-        throw new NotFoundError('Пользователь не найден');
+        throw new NotFoundError(USER_NOT_FOUND);
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError('Некорректный id пользователя'));
+        next(new BadRequestError(USER_WRONG_ID));
         return;
       }
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные'));
+        next(new BadRequestError(WRONG_DATA));
+        return;
+      }
+      if (err.code === 11000) {
+        next(new ConflictError(EMAIL_ALREADY_EXISTS));
         return;
       }
       next(err);
@@ -81,11 +93,11 @@ const updateUser = (req, res, next, updateData) => {
 };
 
 module.exports.updateUserInfo = (req, res, next) => {
-  const { name, about } = req.body;
-  updateUser(req, res, next, { name, about });
+  const { name, email } = req.body;
+  updateUser(req, res, next, { name, email });
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
@@ -94,9 +106,5 @@ module.exports.login = (req, res) => {
       });
       res.send({ token });
     })
-    .catch((err) => {
-      res
-        .status(401)
-        .send({ message: err.message });
-    });
+    .catch(next);
 };

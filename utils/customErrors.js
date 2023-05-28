@@ -1,3 +1,13 @@
+const SERVER_ERROR = 'Ошибка сервера';
+const WRONG_DATA = 'Переданы некорректные данные';
+const MOVIE_ACCESS_ERROR = 'Нет прав для удаления этого фильма';
+const MOVIE_NOT_FOUND = 'Фильм с данным id не найден';
+const USER_NOT_FOUND = 'Пользователь не найден';
+const USER_WRONG_ID = 'Пользователь с данным id не найден';
+const EMAIL_ALREADY_EXISTS = 'Пользователь с указанным email уже зарегистрирован';
+const AUTHORIZATION_REQUIRED = 'При авторизации произошла ошибка';
+const URL_NOT_FOUND = 'Данная страница не существует';
+
 const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const ServerError = require('../errors/ServerError');
@@ -11,7 +21,7 @@ function errorHandler(err, req, res, next) {
   } else if (err instanceof BadRequestError) {
     res.status(err.status).send({ message: err.message });
   } else if (err instanceof ServerError) {
-    res.status(err.status).send({ message: err.message });
+    res.status(err.status).send({ message: SERVER_ERROR });
   } else if (err instanceof ConflictError) {
     res.status(err.status).send({ message: err.message });
   } else if (err instanceof UnauthorizedError) {
@@ -24,6 +34,14 @@ function errorHandler(err, req, res, next) {
 }
 
 module.exports = {
+  WRONG_DATA,
+  MOVIE_ACCESS_ERROR,
+  MOVIE_NOT_FOUND,
+  USER_NOT_FOUND,
+  USER_WRONG_ID,
+  EMAIL_ALREADY_EXISTS,
+  AUTHORIZATION_REQUIRED,
+  URL_NOT_FOUND,
   NotFoundError,
   BadRequestError,
   ServerError,

@@ -3,6 +3,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimiter = require('./middlewares/rateLimiter');
 const routes = require('./routes/index');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
@@ -18,6 +20,8 @@ mongoose.connect(DB_CONN, {
   .then(() => console.log('Успешное подключение к MongoDB'))
   .catch((err) => console.error('Ошибка подключения:', err));
 
+app.use(helmet());
+app.use(rateLimiter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
