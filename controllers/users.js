@@ -12,6 +12,7 @@ const {
 } = require('../utils/customErrors');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
+const { PRODUCTION, JWT_SECRET_LOCAL } = require('../utils/constants');
 
 const findUser = (query) => User.findById(query)
   .then((user) => {
@@ -101,7 +102,9 @@ module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'some-dev-secret-key', {
+      const token = jwt.sign({ _id: user._id }, NODE_ENV === PRODUCTION
+        ? JWT_SECRET
+        : JWT_SECRET_LOCAL, {
         expiresIn: '7d',
       });
       res.send({ token });
